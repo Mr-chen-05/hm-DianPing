@@ -39,6 +39,20 @@ public class UserController {
 
     @Resource
     private UserVOMapper userVOMapper;
+    /**
+     * 查询用户
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public Result queryUserById(@PathVariable("id") Long id){
+        User user = userService.getById(id);
+        if (user == null){
+            return Result.fail("用户不存在");
+        }
+        return Result.ok(userVOMapper.entityToUserVO(user));
+    }
+
 
     /**
      * 发送手机验证码
@@ -68,8 +82,7 @@ public class UserController {
      */
     @PostMapping("/logout")
     public Result logout(){
-        // TODO 实现登出功能
-        return Result.fail("功能未完成");
+        return userService.logout();
     }
 
     /**
@@ -96,5 +109,25 @@ public class UserController {
         info.setUpdateTime(null);
         // 返回
         return Result.ok(info);
+    }
+
+    /**
+     * 签到功能
+     * @return
+     */
+    @PostMapping("/sign")
+    public Result sign(){
+        // 用户签到
+        return userService.sign();
+    }
+
+    /**
+     * 连续签到
+     * @return
+     */
+    @GetMapping("/sign/count")
+    public Result signCount(){
+        // 统计连续签到次数
+        return userService.signCount();
     }
 }

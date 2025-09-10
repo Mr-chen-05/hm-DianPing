@@ -15,6 +15,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author luo20
+ */
 @Slf4j
 public class RefreshTokenInterceptor implements HandlerInterceptor {
 
@@ -23,6 +26,9 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
     public RefreshTokenInterceptor(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
     }
+
+    // 添加ThreadLocal存储token
+    public static final ThreadLocal<String> TOKEN_HOLDER = new ThreadLocal<>();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -44,6 +50,8 @@ public class RefreshTokenInterceptor implements HandlerInterceptor {
         UserDTO userDTO = BeanUtil.fillBeanWithMap(userMap, new UserDTO(), false);
         // 6.存在,保存用户信息到ThreadLocal
         UserHolder.saveUser(userDTO);
+        // 6.1 存储token到ThreadLocal
+        TOKEN_HOLDER.set(token);
         // 7.刷新token有效期
         stringRedisTemplate.expire(key, RedisConstants.LOGIN_USER_TTL, TimeUnit.MINUTES);
         // 8.放行

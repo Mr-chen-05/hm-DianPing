@@ -35,3 +35,4 @@ build/
 
 ### VS Code ###
 .vscode/
+lua脚本保证判断锁一致和删除锁的原子性.lua

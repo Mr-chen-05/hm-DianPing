@@ -1,27 +1,46 @@
 server:
   port: 8081
+  tomcat:
+    threads:
+      max: 300              # 最大工作线程数（默认200）。CPU核数*50~100 作为起点
+      min-spare: 50         # 预热空闲线程数
+    accept-count: 300       # 等待队列长度（满载后仍可排队的请求数）
+    max-connections: 10000  # 最大并发连接数
+    connection-timeout: 5000ms  # 建连/首包超时
+    keep-alive-timeout: 60000ms  # 长连接保持时间
 spring:
   application:
     name: hmdp
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/hmdp?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://127.0.0.1:3306/hmdp?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&cachePrepStmts=true&prepStmtCacheSize=250&prepStmtCacheSqlLimit=2048&useServerPrepStmts=true&rewriteBatchedStatements=true&allowPublicKeyRetrieval=true
     username: root
     password: chenzhuo2005.
+    hikari:
+      maximum-pool-size: 50      # 连接池最大连接（默认10）
+      minimum-idle: 20           # 最小空闲连接
+      idle-timeout: 600000       # 10 分钟
+      max-lifetime: 1800000      # 30 分钟；要小于 MySQL wait_timeout
+      connection-timeout: 30000  # 30 秒
+      pool-name: HikariCP
   redis:
-    host: 192.168.100.128
+    host: 192.168.100.129
     port: 6379
     password: chenzhuo2005.
+    timeout: 3000ms               # 总操作超时
+    connect-timeout: 3000ms       # 建连超时
     lettuce:
       pool:
-        max-active: 10
-        max-idle: 10
-        min-idle: 1
-        time-between-eviction-runs: 10s
+        max-active: 200           # 最大连接数
+        max-idle: 50
+        min-idle: 10
+        max-wait: 3000ms          # 连接池最大等待时间
+        time-between-eviction-runs: 30s
+      shutdown-timeout: 100ms
   jackson:
-    default-property-inclusion: non_null # JSON处理时忽略非空字段
+    default-property-inclusion: non_null
 mybatis-plus:
-  type-aliases-package: com.hmdp.entity # 别名扫描包
+  type-aliases-package: com.hmdp.entity
 logging:
   level:
     com.hmdp: debug
